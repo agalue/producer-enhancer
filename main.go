@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -11,44 +10,9 @@ import (
 	"time"
 
 	"github.com/agalue/producer-enhancer/model"
-	"github.com/agalue/producer-enhancer/protobuf/producer"
 	"github.com/burdiyan/kafkautil"
 	"github.com/lovoo/goka"
 )
-
-func getNodeKey(c *producer.NodeCriteria) string {
-	var key string
-	if c.ForeignSource != "" && c.ForeignId != "" {
-		key = fmt.Sprintf("%s:%s", c.ForeignSource, c.ForeignId)
-	} else {
-		key = fmt.Sprintf("%d", c.Id)
-	}
-	return key
-}
-
-func enhanceEvent(event *producer.Event, ctx goka.Context, nodesTopic goka.Table) *model.EnhancedEvent {
-	enhanced := &model.EnhancedEvent{Event: event}
-	log.Printf("enhancing event with ID %d and UEI %s", event.Id, event.Uei)
-	if c := event.NodeCriteria; c != nil {
-		node := ctx.Lookup(nodesTopic, getNodeKey(c))
-		if node != nil {
-			enhanced.Node = node.(*producer.Node)
-		}
-	}
-	return enhanced
-}
-
-func enhanceAlarm(alarm *producer.Alarm, ctx goka.Context, nodesTopic goka.Table) *model.EnhancedAlarm {
-	enhanced := &model.EnhancedAlarm{Alarm: alarm}
-	log.Printf("enhancing alarm with ID %d and reducion-key %s", alarm.Id, alarm.ReductionKey)
-	if c := alarm.NodeCriteria; c != nil {
-		node := ctx.Lookup(nodesTopic, getNodeKey(c))
-		if node != nil {
-			enhanced.Node = node.(*producer.Node)
-		}
-	}
-	return enhanced
-}
 
 func main() {
 	var bootstrap, groupID, nodesTopic, eventsTopic, alarmsTopic, targetTopic, targetKind string
@@ -64,25 +28,9 @@ func main() {
 	var group *goka.GroupGraph
 	switch targetKind {
 	case "events":
-		group = goka.DefineGroup(goka.Group(groupID),
-			goka.Input(goka.Stream(eventsTopic), new(producer.EventCodec), func(ctx goka.Context, msg interface{}) {
-				event := msg.(*producer.Event)
-				enhanced := enhanceEvent(event, ctx, goka.Table(nodesTopic))
-				ctx.Emit(goka.Stream(targetTopic), ctx.Key(), enhanced)
-			}),
-			goka.Output(goka.Stream(targetTopic), new(model.EnhancedEventCodec)),
-			goka.Lookup(goka.Table(nodesTopic), new(producer.NodeCodec)),
-		)
+		group = new(model.EnhancedEvent).DefineGroup(groupID, eventsTopic, nodesTopic, targetTopic)
 	case "alarms":
-		group = goka.DefineGroup(goka.Group(groupID),
-			goka.Input(goka.Stream(alarmsTopic), new(producer.AlarmCodec), func(ctx goka.Context, msg interface{}) {
-				alarm := msg.(*producer.Alarm)
-				enhanced := enhanceAlarm(alarm, ctx, goka.Table(nodesTopic))
-				ctx.Emit(goka.Stream(targetTopic), ctx.Key(), enhanced)
-			}),
-			goka.Output(goka.Stream(targetTopic), new(model.EnhancedAlarmCodec)),
-			goka.Lookup(goka.Table(nodesTopic), new(producer.NodeCodec)),
-		)
+		group = new(model.EnhancedAlarm).DefineGroup(groupID, alarmsTopic, nodesTopic, targetTopic)
 	default:
 		log.Fatalf("invalid target-kind %s. Valid options: 'events' or 'alarms'", targetKind)
 	}
