@@ -4,6 +4,22 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
+// EventCodec a Goka Codec to encode/decode an OpenNMS Event to/from Protobuf
+type EventCodec struct{}
+
+// Encode encodes a Protobuf byte array into an OpenNMS Event object
+func (c EventCodec) Encode(value interface{}) (data []byte, err error) {
+	data, err = proto.Marshal(value.(*Event))
+	return data, err
+}
+
+// Decode decodes a Protobuf byte array into an OpenNMS Event object
+func (c EventCodec) Decode(data []byte) (value interface{}, err error) {
+	value = &Event{}
+	err = proto.Unmarshal(data, value.(*Event))
+	return value, err
+}
+
 // AlarmCodec a Goka Codec to encode/decode an OpenNMS Alarm to/from Protobuf
 type AlarmCodec struct{}
 
