@@ -61,29 +61,31 @@ func main() {
 	flag.StringVar(&targetKind, "target-kind", "alarms", "The target kind: 'events' or 'alarms'")
 	flag.Parse()
 
-	var input goka.Edge
+	var group *goka.GroupGraph
 	switch targetKind {
 	case "events":
-		input = goka.Input(goka.Stream(eventsTopic), new(producer.EventCodec), func(ctx goka.Context, msg interface{}) {
-			event := msg.(*producer.Event)
-			enhanced := enhanceEvent(event, ctx, goka.Table(nodesTopic))
-			ctx.Emit(goka.Stream(targetTopic), ctx.Key(), enhanced)
-		})
+		group = goka.DefineGroup(goka.Group(groupID),
+			goka.Input(goka.Stream(eventsTopic), new(producer.EventCodec), func(ctx goka.Context, msg interface{}) {
+				event := msg.(*producer.Event)
+				enhanced := enhanceEvent(event, ctx, goka.Table(nodesTopic))
+				ctx.Emit(goka.Stream(targetTopic), ctx.Key(), enhanced)
+			}),
+			goka.Output(goka.Stream(targetTopic), new(model.EnhancedEventCodec)),
+			goka.Lookup(goka.Table(nodesTopic), new(producer.NodeCodec)),
+		)
 	case "alarms":
-		input = goka.Input(goka.Stream(alarmsTopic), new(producer.AlarmCodec), func(ctx goka.Context, msg interface{}) {
-			alarm := msg.(*producer.Alarm)
-			enhanced := enhanceAlarm(alarm, ctx, goka.Table(nodesTopic))
-			ctx.Emit(goka.Stream(targetTopic), ctx.Key(), enhanced)
-		})
+		group = goka.DefineGroup(goka.Group(groupID),
+			goka.Input(goka.Stream(alarmsTopic), new(producer.AlarmCodec), func(ctx goka.Context, msg interface{}) {
+				alarm := msg.(*producer.Alarm)
+				enhanced := enhanceAlarm(alarm, ctx, goka.Table(nodesTopic))
+				ctx.Emit(goka.Stream(targetTopic), ctx.Key(), enhanced)
+			}),
+			goka.Output(goka.Stream(targetTopic), new(model.EnhancedAlarmCodec)),
+			goka.Lookup(goka.Table(nodesTopic), new(producer.NodeCodec)),
+		)
 	default:
 		log.Fatalf("invalid target-kind %s. Valid options: 'events' or 'alarms'", targetKind)
 	}
-
-	group := goka.DefineGroup(goka.Group(groupID),
-		input,
-		goka.Output(goka.Stream(targetTopic), new(model.EnhancedAlarmCodec)),
-		goka.Lookup(goka.Table(nodesTopic), new(producer.NodeCodec)),
-	)
 
 	var processor *goka.Processor
 	var err error
