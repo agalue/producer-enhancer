@@ -1,4 +1,4 @@
-# OpenNMS Kafka Producer Enhancer
+# OpenNMS Kafka Producer Enhancer [![Go Report Card](https://goreportcard.com/badge/github.com/agalue/producer-enhancer)](https://goreportcard.com/report/github.com/agalue/producer-enhancer)
 
 A Goka application to generate enhanced version of Events or Alarms with Node data when available.
 
