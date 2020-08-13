@@ -51,23 +51,19 @@ func main() {
 	log.Println("connected.")
 
 	ctx, cancel := context.WithCancel(context.Background())
-	done := make(chan struct{})
+	done := make(chan bool)
 	go func() {
 		defer close(done)
 		if err = processor.Run(ctx); err != nil {
-			log.Printf("error running processor: %v", err)
+			log.Fatalf("error running processor: %v", err)
+		} else {
+			log.Printf("processor shutdown cleanly")
 		}
 	}()
 
-	sigs := make(chan os.Signal)
-	go func() {
-		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
-	}()
-
-	select {
-	case <-sigs:
-	case <-done:
-	}
-	cancel()
+	wait := make(chan os.Signal, 1)
+	signal.Notify(wait, syscall.SIGINT, syscall.SIGTERM)
+	<-wait
+	cancel() // gracefully stop processor
 	<-done
 }
