@@ -42,13 +42,13 @@ func (e EnhancedAlarm) DefineGroup(groupID, alarmsTopic, nodesTopic, targetTopic
 // EnhancedAlarmCodec a Goka Codec to encode/decode an enhanced alarm to/from JSON
 type EnhancedAlarmCodec struct{}
 
-// Encode encodes a Protobuf byte array into an OpenNMS Alarm object
+// Encode encodes an OpenNMS Alarm object into a JSON byte array
 func (c EnhancedAlarmCodec) Encode(value interface{}) (data []byte, err error) {
 	data, err = json.Marshal(value)
 	return data, err
 }
 
-// Decode decodes a Protobuf byte array into an OpenNMS Alarm object
+// Decode decodes a JSON byte array into an OpenNMS Alarm object
 func (c EnhancedAlarmCodec) Decode(data []byte) (value interface{}, err error) {
 	value = &EnhancedAlarm{}
 	err = json.Unmarshal(data, value.(*EnhancedAlarm))
