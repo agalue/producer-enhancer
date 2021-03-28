@@ -34,8 +34,6 @@ docker push agalue/producer-enhancer-go:latest
 To build the controller locally for testing:
 
 ```bash
-export GO111MODULE="on"
-
 go build
 ./producer-enhancer
 ```
