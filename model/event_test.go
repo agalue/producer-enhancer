@@ -7,7 +7,7 @@ import (
 	"github.com/agalue/producer-enhancer/protobuf/producer"
 	"github.com/lovoo/goka"
 	"github.com/lovoo/goka/tester"
-	"gotest.tools/assert"
+	"gotest.tools/v3/assert"
 )
 
 func TestEventProcessor(t *testing.T) {
