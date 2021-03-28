@@ -2,7 +2,7 @@
 
 syntax = "proto3";
 
-option go_package = ".;producer";
+option go_package = "./producer";
 
 // The values differ from the standard codes in OpenNMS
 // since proto3 enforces us to start at 0
