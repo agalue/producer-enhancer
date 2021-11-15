@@ -3,7 +3,6 @@ module github.com/agalue/producer-enhancer
 go 1.17
 
 require (
-	github.com/Shopify/sarama v1.30.0
 	github.com/burdiyan/kafkautil v0.0.0-20190131162249-eaf83ed22d5b
 	github.com/lovoo/goka v1.0.6
 	google.golang.org/protobuf v1.27.1
@@ -11,6 +10,7 @@ require (
 )
 
 require (
+	github.com/Shopify/sarama v1.30.0 // indirect
 	github.com/avast/retry-go v3.0.0+incompatible // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/eapache/go-resiliency v1.2.0 // indirect
