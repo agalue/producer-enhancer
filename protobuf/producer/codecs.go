@@ -1,7 +1,7 @@
 package producer
 
 import (
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 )
 
 // EventCodec a Goka Codec to encode/decode an OpenNMS Event to/from Protobuf

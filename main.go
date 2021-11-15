@@ -25,6 +25,9 @@ func main() {
 	flag.StringVar(&targetKind, "target-kind", "alarms", "The target kind: 'events' or 'alarms'")
 	flag.Parse()
 
+	log.Printf("generating %s on topic %s at %s", targetKind, targetTopic, bootstrap)
+	log.Printf("sources: nodes='%s', events='%s', alarms='%s'", nodesTopic, eventsTopic, alarmsTopic)
+
 	var group *goka.GroupGraph
 	switch targetKind {
 	case "events":

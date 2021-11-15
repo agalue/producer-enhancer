@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 exec /producer-enhancer \
-  -bootstrap "${BOOTSTRAP_SERVERS}" \
+  -bootstrap "${BOOTSTRAP_SERVER}" \
   -nodes-topic "${NODES_TOPIC-nodes}" \
   -events-topic "${EVENTS_TOPIC-events}" \
   -alarms-topic "${ALARMS_TOPIC-alarms}" \
