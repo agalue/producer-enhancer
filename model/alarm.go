@@ -29,7 +29,7 @@ func (e EnhancedAlarm) enhance(alarm *producer.Alarm, ctx goka.Context, nodesTop
 // DefineGroup creates a Goke GroupGraph to enhance alarms
 func (e EnhancedAlarm) DefineGroup(groupID, alarmsTopic, nodesTopic, targetTopic string) *goka.GroupGraph {
 	return goka.DefineGroup(goka.Group(groupID),
-		goka.Input(goka.Stream(alarmsTopic), new(producer.AlarmCodec), func(ctx goka.Context, msg interface{}) {
+		goka.Input(goka.Stream(alarmsTopic), new(producer.AlarmCodec), func(ctx goka.Context, msg any) {
 			alarm := msg.(*producer.Alarm)
 			enhanced := e.enhance(alarm, ctx, goka.Table(nodesTopic))
 			ctx.Emit(goka.Stream(targetTopic), ctx.Key(), enhanced)
@@ -43,13 +43,13 @@ func (e EnhancedAlarm) DefineGroup(groupID, alarmsTopic, nodesTopic, targetTopic
 type EnhancedAlarmCodec struct{}
 
 // Encode encodes an OpenNMS Alarm object into a JSON byte array
-func (c EnhancedAlarmCodec) Encode(value interface{}) (data []byte, err error) {
+func (c EnhancedAlarmCodec) Encode(value any) (data []byte, err error) {
 	data, err = json.Marshal(value)
 	return data, err
 }
 
 // Decode decodes a JSON byte array into an OpenNMS Alarm object
-func (c EnhancedAlarmCodec) Decode(data []byte) (value interface{}, err error) {
+func (c EnhancedAlarmCodec) Decode(data []byte) (value any, err error) {
 	value = &EnhancedAlarm{}
 	err = json.Unmarshal(data, value.(*EnhancedAlarm))
 	return value, err

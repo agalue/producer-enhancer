@@ -29,7 +29,7 @@ func (e EnhancedEvent) enhance(event *producer.Event, ctx goka.Context, nodesTop
 // DefineGroup creates a Goke GroupGraph to enhance events
 func (e EnhancedEvent) DefineGroup(groupID, eventsTopic, nodesTopic, targetTopic string) *goka.GroupGraph {
 	return goka.DefineGroup(goka.Group(groupID),
-		goka.Input(goka.Stream(eventsTopic), new(producer.EventCodec), func(ctx goka.Context, msg interface{}) {
+		goka.Input(goka.Stream(eventsTopic), new(producer.EventCodec), func(ctx goka.Context, msg any) {
 			event := msg.(*producer.Event)
 			enhanced := e.enhance(event, ctx, goka.Table(nodesTopic))
 			ctx.Emit(goka.Stream(targetTopic), ctx.Key(), enhanced)
@@ -43,13 +43,13 @@ func (e EnhancedEvent) DefineGroup(groupID, eventsTopic, nodesTopic, targetTopic
 type EnhancedEventCodec struct{}
 
 // Encode encodes an OpenNMS Event object into a JSON byte array
-func (c EnhancedEventCodec) Encode(value interface{}) (data []byte, err error) {
+func (c EnhancedEventCodec) Encode(value any) (data []byte, err error) {
 	data, err = json.Marshal(value)
 	return data, err
 }
 
 // Decode decodes a JSON byte array into an OpenNMS Event object
-func (c EnhancedEventCodec) Decode(data []byte) (value interface{}, err error) {
+func (c EnhancedEventCodec) Decode(data []byte) (value any, err error) {
 	value = &EnhancedEvent{}
 	err = json.Unmarshal(data, value.(*EnhancedEvent))
 	return value, err

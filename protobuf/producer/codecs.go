@@ -8,13 +8,13 @@ import (
 type EventCodec struct{}
 
 // Encode encodes an OpenNMS Event object into a Protobuf byte array
-func (c EventCodec) Encode(value interface{}) (data []byte, err error) {
+func (c EventCodec) Encode(value any) (data []byte, err error) {
 	data, err = proto.Marshal(value.(*Event))
 	return data, err
 }
 
 // Decode decodes a Protobuf byte array into an OpenNMS Event object
-func (c EventCodec) Decode(data []byte) (value interface{}, err error) {
+func (c EventCodec) Decode(data []byte) (value any, err error) {
 	value = &Event{}
 	err = proto.Unmarshal(data, value.(*Event))
 	return value, err
@@ -24,13 +24,13 @@ func (c EventCodec) Decode(data []byte) (value interface{}, err error) {
 type AlarmCodec struct{}
 
 // Encode encodes an OpenNMS Alarm object into a Protobuf byte array
-func (c AlarmCodec) Encode(value interface{}) (data []byte, err error) {
+func (c AlarmCodec) Encode(value any) (data []byte, err error) {
 	data, err = proto.Marshal(value.(*Alarm))
 	return data, err
 }
 
 // Decode decodes a Protobuf byte array into an OpenNMS Alarm object
-func (c AlarmCodec) Decode(data []byte) (value interface{}, err error) {
+func (c AlarmCodec) Decode(data []byte) (value any, err error) {
 	value = &Alarm{}
 	err = proto.Unmarshal(data, value.(*Alarm))
 	return value, err
@@ -40,13 +40,13 @@ func (c AlarmCodec) Decode(data []byte) (value interface{}, err error) {
 type NodeCodec struct{}
 
 // Encode encodes an OpenNMS Node object into a Protobuf byte array
-func (c NodeCodec) Encode(value interface{}) (data []byte, err error) {
+func (c NodeCodec) Encode(value any) (data []byte, err error) {
 	data, err = proto.Marshal(value.(*Node))
 	return data, err
 }
 
 // Decode decodes a Protobuf byte array into an OpenNMS Node object
-func (c NodeCodec) Decode(data []byte) (value interface{}, err error) {
+func (c NodeCodec) Decode(data []byte) (value any, err error) {
 	value = &Node{}
 	err = proto.Unmarshal(data, value.(*Node))
 	return value, err
